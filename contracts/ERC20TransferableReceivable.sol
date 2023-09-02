@@ -121,7 +121,7 @@ contract ERC20TransferableReceivable is ERC721 {
             abi.encodeWithSignature(
                 "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
                 tokenAddress,
-                owner,
+                msg.sender,
                 amount,
                 paymentReference,
                 feeAmount,

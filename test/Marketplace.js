@@ -62,10 +62,9 @@ describe("Token contract", function () {
 
   // You can nest describe calls to create subsections.
   describe("Marketplace", function () {
-    it("Should lend", async function () {
+    it("Should create receivable", async function () {
       const { hardhatToken, receivable, marketplace, owner, borrower } =
         await loadFixture(deployTokenFixture);
-
       const lenderBeforeBalance = await hardhatToken.balanceOf(owner.address);
       const borrowerBeforeBalance = await hardhatToken.balanceOf(
         borrower.address
@@ -73,30 +72,20 @@ describe("Token contract", function () {
       const paymentRef = "0x11";
       console.log("lenderBeforeBalance: ", lenderBeforeBalance);
       console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
-      await marketplace
-        .connect(owner)
-        .createReceivable(owner.address, 2, paymentRef, hardhatToken.address);
-      const receivableInfo = await receivable.receivableInfoMapping(1);
-      console.log("receivableInfo: ", receivableInfo);
-      //   const key = ethers.utils.solidityKeccak256(
-      //     ["address", "bytes"],
-      //     [borrower.address, paymentRef]
-      //   );
-      //   const id = await receivable.receivableTokenIdMapping(key);
-      //   console.log("id: ", id);
-
+      const amount = 1000;
+      await receivable.mint(
+        borrower.address,
+        paymentRef,
+        amount,
+        hardhatToken.address
+      );
       await hardhatToken.approve(
         receivable.address,
         ethers.constants.MaxUint256
       );
-
-      console.log(
-        "allowance: ",
-        await hardhatToken.allowance(owner.address, receivable.address)
-      );
-      await marketplace
+      await receivable
         .connect(owner)
-        .lend(1, owner.address, 2, 0, ethers.constants.AddressZero, paymentRef);
+        .payOwner(1, amount, paymentRef, 0, ethers.constants.AddressZero);
       const lenderAfterBalance = await hardhatToken.balanceOf(owner.address);
       const borrowerAfterBalance = await hardhatToken.balanceOf(
         borrower.address
@@ -104,5 +93,47 @@ describe("Token contract", function () {
       console.log("lenderAfterBalance: ", lenderAfterBalance);
       console.log("borrowerAfterBalance: ", borrowerAfterBalance);
     });
+    // it("Should lend", async function () {
+    //   const { hardhatToken, receivable, marketplace, owner, borrower } =
+    //     await loadFixture(deployTokenFixture);
+
+    //   const lenderBeforeBalance = await hardhatToken.balanceOf(owner.address);
+    //   const borrowerBeforeBalance = await hardhatToken.balanceOf(
+    //     borrower.address
+    //   );
+    //   const paymentRef = "0x11";
+    //   console.log("lenderBeforeBalance: ", lenderBeforeBalance);
+    //   console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
+    //   await marketplace
+    //     .connect(owner)
+    //     .createReceivable(owner.address, 2, paymentRef, hardhatToken.address);
+    //   const receivableInfo = await receivable.receivableInfoMapping(1);
+    //   console.log("receivableInfo: ", receivableInfo);
+    //   //   const key = ethers.utils.solidityKeccak256(
+    //   //     ["address", "bytes"],
+    //   //     [borrower.address, paymentRef]
+    //   //   );
+    //   //   const id = await receivable.receivableTokenIdMapping(key);
+    //   //   console.log("id: ", id);
+
+    //   await hardhatToken.approve(
+    //     receivable.address,
+    //     ethers.constants.MaxUint256
+    //   );
+
+    //   console.log(
+    //     "allowance: ",
+    //     await hardhatToken.allowance(owner.address, receivable.address)
+    //   );
+    //   await marketplace
+    //     .connect(owner)
+    //     .lend(1, owner.address, 2, 0, ethers.constants.AddressZero, paymentRef);
+    //   const lenderAfterBalance = await hardhatToken.balanceOf(owner.address);
+    //   const borrowerAfterBalance = await hardhatToken.balanceOf(
+    //     borrower.address
+    //   );
+    //   console.log("lenderAfterBalance: ", lenderAfterBalance);
+    //   console.log("borrowerAfterBalance: ", borrowerAfterBalance);
+    // });
   });
 });
