@@ -69,16 +69,15 @@ describe("Token contract", function () {
       const borrowerBeforeBalance = await hardhatToken.balanceOf(
         borrower.address
       );
+      console.log("owner adddress", owner.address);
+      console.log("borrower adddress", borrower.address);
       const paymentRef = "0x11";
       console.log("lenderBeforeBalance: ", lenderBeforeBalance);
       console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
       const amount = 1000;
-      await receivable.mint(
-        borrower.address,
-        paymentRef,
-        amount,
-        hardhatToken.address
-      );
+      await receivable
+        .connect(owner)
+        .mint(borrower.address, paymentRef, amount, hardhatToken.address);
       await hardhatToken.approve(
         receivable.address,
         ethers.constants.MaxUint256

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 /**
  * @title ERC20FeeProxy
  * @notice This contract performs an ERC20 token transfer, with a Fee sent to a third address and stores a reference
@@ -41,19 +39,16 @@ contract ERC20FeeProxy {
         uint256 _feeAmount,
         address _feeAddress
     ) external {
-        console.log("transferFromWithReferenceAndFee");
         require(
             safeTransferFrom(_tokenAddress, _to, _amount),
             "payment transferFrom() failed"
         );
-        console.log("passed require safeTransferFrom");
         if (_feeAmount > 0 && _feeAddress != address(0)) {
             require(
                 safeTransferFrom(_tokenAddress, _feeAddress, _feeAmount),
                 "fee transferFrom() failed"
             );
         }
-        console.log("passed require fee safeTransferFrom");
         emit TransferWithReferenceAndFee(
             _tokenAddress,
             _to,
@@ -81,7 +76,6 @@ contract ERC20FeeProxy {
                 revert(0, 0)
             }
         }
-        console.log("passed assembly");
 
         // solium-disable-next-line security/no-low-level-calls
         (bool success, ) = _tokenAddress.call(
@@ -92,7 +86,6 @@ contract ERC20FeeProxy {
                 _amount
             )
         );
-        console.log("encoded transferFrom");
 
         assembly {
             switch returndatasize()
@@ -110,8 +103,6 @@ contract ERC20FeeProxy {
                 revert(0, 0)
             }
         }
-
-        console.log("passed switch");
 
         require(success, "transferFrom() has been reverted");
 
