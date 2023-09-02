@@ -10,7 +10,7 @@ import "hardhat/console.sol";
 
 // This is the main building block for smart contracts.
 contract Marketplace {
-    // A mapping is a key/value map. Here we store each stream
+    // A mapping of TradeableCashflow NFT to their ERC20TransferableReceivable
     mapping(address => address) streams;
     ERC20TransferableReceivable public receivable;
 

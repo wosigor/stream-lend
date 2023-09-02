@@ -92,47 +92,47 @@ describe("Token contract", function () {
       console.log("lenderAfterBalance: ", lenderAfterBalance);
       console.log("borrowerAfterBalance: ", borrowerAfterBalance);
     });
-    // it("Should lend", async function () {
-    //   const { hardhatToken, receivable, marketplace, owner, borrower } =
-    //     await loadFixture(deployTokenFixture);
+    it("Should lend", async function () {
+      const { hardhatToken, receivable, marketplace, owner, borrower } =
+        await loadFixture(deployTokenFixture);
 
-    //   const lenderBeforeBalance = await hardhatToken.balanceOf(owner.address);
-    //   const borrowerBeforeBalance = await hardhatToken.balanceOf(
-    //     borrower.address
-    //   );
-    //   const paymentRef = "0x11";
-    //   console.log("lenderBeforeBalance: ", lenderBeforeBalance);
-    //   console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
-    //   await marketplace
-    //     .connect(owner)
-    //     .createReceivable(owner.address, 2, paymentRef, hardhatToken.address);
-    //   const receivableInfo = await receivable.receivableInfoMapping(1);
-    //   console.log("receivableInfo: ", receivableInfo);
-    //   //   const key = ethers.utils.solidityKeccak256(
-    //   //     ["address", "bytes"],
-    //   //     [borrower.address, paymentRef]
-    //   //   );
-    //   //   const id = await receivable.receivableTokenIdMapping(key);
-    //   //   console.log("id: ", id);
+      const lenderBeforeBalance = await hardhatToken.balanceOf(owner.address);
+      const borrowerBeforeBalance = await hardhatToken.balanceOf(
+        borrower.address
+      );
+      const paymentRef = "0x11";
+      console.log("lenderBeforeBalance: ", lenderBeforeBalance);
+      console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
+      await marketplace
+        .connect(owner)
+        .createReceivable(owner.address, 2, paymentRef, hardhatToken.address);
+      const receivableInfo = await receivable.receivableInfoMapping(1);
+      console.log("receivableInfo: ", receivableInfo);
+      //   const key = ethers.utils.solidityKeccak256(
+      //     ["address", "bytes"],
+      //     [borrower.address, paymentRef]
+      //   );
+      //   const id = await receivable.receivableTokenIdMapping(key);
+      //   console.log("id: ", id);
 
-    //   await hardhatToken.approve(
-    //     receivable.address,
-    //     ethers.constants.MaxUint256
-    //   );
+      await hardhatToken.approve(
+        receivable.address,
+        ethers.constants.MaxUint256
+      );
 
-    //   console.log(
-    //     "allowance: ",
-    //     await hardhatToken.allowance(owner.address, receivable.address)
-    //   );
-    //   await marketplace
-    //     .connect(owner)
-    //     .lend(1, owner.address, 2, 0, ethers.constants.AddressZero, paymentRef);
-    //   const lenderAfterBalance = await hardhatToken.balanceOf(owner.address);
-    //   const borrowerAfterBalance = await hardhatToken.balanceOf(
-    //     borrower.address
-    //   );
-    //   console.log("lenderAfterBalance: ", lenderAfterBalance);
-    //   console.log("borrowerAfterBalance: ", borrowerAfterBalance);
-    // });
+      console.log(
+        "allowance: ",
+        await hardhatToken.allowance(owner.address, receivable.address)
+      );
+      await marketplace
+        .connect(owner)
+        .lend(1, owner.address, 2, 0, ethers.constants.AddressZero, paymentRef);
+      const lenderAfterBalance = await hardhatToken.balanceOf(owner.address);
+      const borrowerAfterBalance = await hardhatToken.balanceOf(
+        borrower.address
+      );
+      console.log("lenderAfterBalance: ", lenderAfterBalance);
+      console.log("borrowerAfterBalance: ", borrowerAfterBalance);
+    });
   });
 });
