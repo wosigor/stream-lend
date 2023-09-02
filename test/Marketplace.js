@@ -24,29 +24,85 @@ describe("Token contract", function () {
   // Network to that snapshot in every test.
   async function deployTokenFixture() {
     // Get the ContractFactory and Signers here.
-    const Token = await ethers.getContractFactory("Token");
+    const Token = await ethers.getContractFactory("TestERC20");
+    const ERC20Proxy = await ethers.getContractFactory("ERC20FeeProxy");
     const Marketplace = await ethers.getContractFactory("Marketplace");
-    const [owner, addr1, addr2] = await ethers.getSigners();
+    const Receivable = await ethers.getContractFactory(
+      "ERC20TransferableReceivable"
+    );
+    const [owner, addr1, borrower] = await ethers.getSigners();
 
     // To deploy our contract, we just have to call Token.deploy() and await
     // for it to be deployed(), which happens onces its transaction has been
     // mined.
-    const hardhatToken = await Token.deploy();
-    const marketplace = await Marketplace.deploy();
+    const hardhatToken = await Token.deploy(100000);
+    const erc20proxy = await ERC20Proxy.deploy();
+    const receivable = await Receivable.deploy(
+      "Request Network Transferable Receivable",
+      "tREC",
+      erc20proxy.address
+    );
+    console.log("receivable: ", receivable.address);
+    const marketplace = await Marketplace.deploy(receivable.address);
 
     await hardhatToken.deployed();
 
     // Fixtures can return anything you consider useful for your tests
-    return { Token, marketplace, hardhatToken, owner, addr1, addr2 };
+    return {
+      Token,
+      marketplace,
+      hardhatToken,
+      erc20proxy,
+      receivable,
+      owner,
+      addr1,
+      borrower,
+    };
   }
 
   // You can nest describe calls to create subsections.
   describe("Marketplace", function () {
     it("Should lend", async function () {
-      const { hardhatToken, marketplace, owner } = await loadFixture(
-        deployTokenFixture
+      const { hardhatToken, receivable, marketplace, owner, borrower } =
+        await loadFixture(deployTokenFixture);
+
+      const lenderBeforeBalance = await hardhatToken.balanceOf(owner.address);
+      const borrowerBeforeBalance = await hardhatToken.balanceOf(
+        borrower.address
       );
-      await marketplace.lend(owner.address, 1, "0x11", hardhatToken.address);
+      const paymentRef = "0x11";
+      console.log("lenderBeforeBalance: ", lenderBeforeBalance);
+      console.log("borrowerBeforeBalance: ", borrowerBeforeBalance);
+      await marketplace
+        .connect(owner)
+        .createReceivable(owner.address, 2, paymentRef, hardhatToken.address);
+      const receivableInfo = await receivable.receivableInfoMapping(1);
+      console.log("receivableInfo: ", receivableInfo);
+      //   const key = ethers.utils.solidityKeccak256(
+      //     ["address", "bytes"],
+      //     [borrower.address, paymentRef]
+      //   );
+      //   const id = await receivable.receivableTokenIdMapping(key);
+      //   console.log("id: ", id);
+
+      await hardhatToken.approve(
+        receivable.address,
+        ethers.constants.MaxUint256
+      );
+
+      console.log(
+        "allowance: ",
+        await hardhatToken.allowance(owner.address, receivable.address)
+      );
+      await marketplace
+        .connect(owner)
+        .lend(1, owner.address, 2, 0, ethers.constants.AddressZero, paymentRef);
+      const lenderAfterBalance = await hardhatToken.balanceOf(owner.address);
+      const borrowerAfterBalance = await hardhatToken.balanceOf(
+        borrower.address
+      );
+      console.log("lenderAfterBalance: ", lenderAfterBalance);
+      console.log("borrowerAfterBalance: ", borrowerAfterBalance);
     });
   });
 });
